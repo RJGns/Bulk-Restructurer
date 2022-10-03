@@ -9,26 +9,30 @@ namespace BulkStructure
 {
     public class Program
     {
-        string[] filesToConvert = Directory.GetFiles(Environment.CurrentDirectory);
-        string[] stripped;
+        static string[] filesToConvert = Directory.GetFiles(Environment.CurrentDirectory);
+        string[] stripped = filesToConvert;
         int dateCharNo;
         int digits;
         static void Main(string[] args)
         {
             var n = new Program();
-            Console.WriteLine(n.filesToConvert.Length.ToString() + " files in directory \nEnter character that the date starts from: ");
-            n.setChar();
+            Console.WriteLine(filesToConvert.Length.ToString() + " files in directory \nEnter character that the date starts from: ");
+            n.strip();
         }
 
 
 
         void strip()
         {
+            int i = 0;
             foreach (string file in filesToConvert)
             {
                 int pos = file.LastIndexOf('\\');
-                
+                stripped[i] = file.Substring(pos +1);
+                Console.WriteLine(stripped[i]);
+                i++;
             }
+            Console.ReadKey();
         }
 
         
