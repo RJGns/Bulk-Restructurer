@@ -13,10 +13,10 @@ namespace BulkStructure
         string[] stripped;
         string path;
         string destPath = @"E:\Media\Pictures\Bulk rename\Out";
-        static string[] yearFolders = { "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022" };
+        
         int dateCharNo;
         int digits;
-        bool thisCentury;
+        bool thisCentury = true;
         static void Main(string[] args)
         {
             var n = new Program();
@@ -42,6 +42,10 @@ namespace BulkStructure
         string getDate(string fileToConvert)
         {
             string date;
+            if (fileToConvert.Length <= dateCharNo)
+            {
+                return "Other";
+            }
             if (digits == 2)
             {
                 char a = fileToConvert[dateCharNo - 1];
@@ -76,7 +80,7 @@ namespace BulkStructure
                      x = Convert.ToInt32(date) + 2000;
                 } else
                 {
-                     x = Convert.ToInt32(date) + 1000;
+                     x = Convert.ToInt32(date) + 1900;
                 }
                 
 
@@ -87,22 +91,12 @@ namespace BulkStructure
                 return "Other";
             }
         }
-        void checkForFolders()
-        {
-            if (!Directory.GetDirectories(destPath).Contains("2014"))
-            {
-                Directory.CreateDirectory(destPath);
-                foreach (string year in yearFolders)
-                {
-                    Directory.CreateDirectory(Path.Combine(destPath,year));
-                }
-            }
-        }
+        
         void loop()
         {
             strip();
-            checkForFolders();
-            deleteEmpty();
+            
+            
             int i = 0;
             foreach (string fileToConvert in stripped)
             {
@@ -110,10 +104,15 @@ namespace BulkStructure
                 {
                     if (getDate(fileToConvert) != null)
                     {
+                        var from = Path.Combine(path, fileToConvert);
+                        var yearFolder = Path.Combine(destPath, getDate(fileToConvert));
+                        var to = Path.Combine(yearFolder, fileToConvert);
                         try
-                        {
-                            var from = Path.Combine(path, fileToConvert);
-                            var to = Path.Combine(Path.Combine(destPath, getDate(fileToConvert)), fileToConvert);
+                        {                         
+                            if (!Directory.Exists(yearFolder))
+                            {
+                                Directory.CreateDirectory(yearFolder);
+                            }
                             File.Move(from, to);
                             Console.WriteLine("Moved");
                             
@@ -148,6 +147,7 @@ namespace BulkStructure
                 }
             }
             Console.ReadKey();
+            deleteEmpty();
         }
         void deleteEmpty()
         {
@@ -165,8 +165,15 @@ namespace BulkStructure
         {
             Console.WriteLine("Enter images current path: ");
             path = Console.ReadLine();
-            
-            filesToConvert = Directory.GetFiles(@path);
+            try
+            {
+                filesToConvert = Directory.GetFiles(@path);
+            }
+            catch
+            {
+                Console.WriteLine("Error with path");
+                setPath();
+            }
             stripped = filesToConvert;
             Console.WriteLine("Enter destination path: ");
             destPath = Console.ReadLine();
@@ -179,12 +186,13 @@ namespace BulkStructure
             {
                 Console.WriteLine("Enter character date starts from: ");
                 dateCharNo = Convert.ToInt32(Console.ReadLine());
-                Console.WriteLine(dateCharNo + "th character \nNumber of digits in year: ");
+                
                 Console.WriteLine("Images from at least year 2000? (Y/N Default = Y)");
-                if (Console.ReadLine().ToUpper() == "Y")
+                string z = Console.ReadLine().ToUpper();
+                if (z == "Y")
                 {
                     thisCentury = true;
-                } else if (Console.ReadLine().ToUpper() == "N")
+                } else if (z == "N")
                 {
                     thisCentury= false;
                 } else
@@ -203,13 +211,14 @@ namespace BulkStructure
         {
             try
             {
+                Console.WriteLine("Number of digits in year (2/4): ");
                 digits = Convert.ToInt32(Console.ReadLine());
-                Console.WriteLine("Number of digits in year (2/4): " + digits);
+                
                 loop();
             }
-            catch
+            catch (FormatException ex)
             {
-                Console.WriteLine("Try again \nNumber of digits in year (2/4): ");
+                Console.WriteLine("Try again \n" + ex);
                 setDigit();
             }
         }
