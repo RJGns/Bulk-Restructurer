@@ -16,6 +16,7 @@ namespace BulkStructure
         static string[] yearFolders = { "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022" };
         int dateCharNo;
         int digits;
+        bool thisCentury;
         static void Main(string[] args)
         {
             var n = new Program();
@@ -69,7 +70,15 @@ namespace BulkStructure
             else date = "F";
             try
             {
-                int x = Convert.ToInt32(date) + 2000;
+                int x;
+                if (thisCentury)
+                {
+                     x = Convert.ToInt32(date) + 2000;
+                } else
+                {
+                     x = Convert.ToInt32(date) + 1000;
+                }
+                
 
                 return x.ToString();
             }
@@ -93,6 +102,7 @@ namespace BulkStructure
         {
             strip();
             checkForFolders();
+            deleteEmpty();
             int i = 0;
             foreach (string fileToConvert in stripped)
             {
@@ -139,6 +149,18 @@ namespace BulkStructure
             }
             Console.ReadKey();
         }
+        void deleteEmpty()
+        {
+            foreach (var directory in Directory.GetDirectories(destPath))
+            {
+               
+                if (Directory.GetFiles(directory).Length == 0 &&
+                    Directory.GetDirectories(directory).Length == 0)
+                {
+                    Directory.Delete(directory, false);
+                }
+            }
+        }
         void setPath()
         {
             Console.WriteLine("Enter images current path: ");
@@ -158,6 +180,17 @@ namespace BulkStructure
                 Console.WriteLine("Enter character date starts from: ");
                 dateCharNo = Convert.ToInt32(Console.ReadLine());
                 Console.WriteLine(dateCharNo + "th character \nNumber of digits in year: ");
+                Console.WriteLine("Images from at least year 2000? (Y/N Default = Y)");
+                if (Console.ReadLine().ToUpper() == "Y")
+                {
+                    thisCentury = true;
+                } else if (Console.ReadLine().ToUpper() == "N")
+                {
+                    thisCentury= false;
+                } else
+                {
+                    thisCentury= true;
+                }
                 setDigit();
             }
             catch
